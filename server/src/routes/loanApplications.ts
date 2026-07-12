@@ -6,6 +6,7 @@ import { createLoanApplicationSchema, updateLoanApplicationSchema } from '../val
 const router = Router();
 
 router.get('/', loanApplicationController.listLoanApplications);
+router.get('/summary', loanApplicationController.getLoanApplicationsSummary);
 router.get('/:id', loanApplicationController.getLoanApplication);
 router.post('/', validateBody(createLoanApplicationSchema), loanApplicationController.createLoanApplication);
 router.patch('/:id', validateBody(updateLoanApplicationSchema), loanApplicationController.updateLoanApplication);

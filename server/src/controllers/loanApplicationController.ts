@@ -10,6 +10,11 @@ export const listLoanApplications = asyncHandler(async (req: Request, res: Respo
   res.json(result);
 });
 
+export const getLoanApplicationsSummary = asyncHandler(async (_req: Request, res: Response) => {
+  const summary = await loanApplicationService.getLoanApplicationsSummary();
+  res.json(summary);
+});
+
 export const getLoanApplication = asyncHandler(async (req: Request, res: Response) => {
   const id = parseIdParam(req.params.id);
   const loanApplication = await loanApplicationService.getLoanApplicationById(id);

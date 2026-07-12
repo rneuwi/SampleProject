@@ -52,3 +52,10 @@ export interface PaginatedResult<T> {
   data: T[];
   pagination: PaginationMeta;
 }
+
+export interface LoanApplicationsSummary {
+  totalApplications: number;
+  byStatus: Record<UnderwritingStatus, number>;
+  averageDti: number;
+  averageLtv: number;
+}

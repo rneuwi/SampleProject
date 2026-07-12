@@ -2,6 +2,7 @@ import { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 import { pool } from '../config/db';
 import {
   EmploymentStatus,
+  LoanApplicationsSummary,
   LoanApplicationWithApplicant,
   LoanType,
   PaginatedResult,
@@ -267,6 +268,31 @@ export async function updateLoanApplication(
   );
 
   return getLoanApplicationById(id);
+}
+
+export async function getLoanApplicationsSummary(): Promise<LoanApplicationsSummary> {
+  const [statusRows] = await pool.query<(RowDataPacket & { underwriting_status: UnderwritingStatus; count: number })[]>(
+    'SELECT underwriting_status, COUNT(*) AS count FROM loan_applications GROUP BY underwriting_status'
+  );
+
+  const byStatus: Record<UnderwritingStatus, number> = { approved: 0, conditional: 0, refer: 0, declined: 0 };
+  let totalApplications = 0;
+  for (const row of statusRows) {
+    const count = Number(row.count);
+    byStatus[row.underwriting_status] = count;
+    totalApplications += count;
+  }
+
+  const [averageRows] = await pool.query<(RowDataPacket & { avg_dti: string | null; avg_ltv: string | null })[]>(
+    'SELECT AVG(dti_ratio) AS avg_dti, AVG(ltv_ratio) AS avg_ltv FROM loan_applications'
+  );
+
+  return {
+    totalApplications,
+    byStatus,
+    averageDti: averageRows[0].avg_dti ? Number(averageRows[0].avg_dti) : 0,
+    averageLtv: averageRows[0].avg_ltv ? Number(averageRows[0].avg_ltv) : 0,
+  };
 }
 
 export async function deleteLoanApplication(id: number): Promise<void> {

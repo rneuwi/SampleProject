@@ -8,6 +8,21 @@ const router = createRouter({
       name: 'dashboard',
       component: () => import('@/views/DashboardView.vue'),
     },
+    {
+      path: '/applications/new',
+      name: 'new-application',
+      component: () => import('@/views/NewApplicationView.vue'),
+    },
+    {
+      path: '/applications/:id',
+      name: 'application-detail',
+      component: () => import('@/views/ApplicationDetailView.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue'),
+    },
   ],
 });
 
