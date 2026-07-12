@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../config/db';
+import applicantsRouter from './applicants';
+import loanApplicationsRouter from './loanApplications';
 
 const router = Router();
 
@@ -13,5 +15,8 @@ router.get('/health', async (_req, res) => {
     res.status(503).json({ status: 'error', database: 'unavailable' });
   }
 });
+
+router.use('/applicants', applicantsRouter);
+router.use('/loan-applications', loanApplicationsRouter);
 
 export default router;

@@ -25,4 +25,5 @@ Thumbs.db
 mysql-data/
 
 # Claude Code local settings
+.claude
 .claude/settings.local.json
