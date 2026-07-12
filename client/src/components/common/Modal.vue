@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, watch } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -11,6 +11,9 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>();
+
+const titleId = useId();
+const dialogRef = ref<HTMLElement | null>(null);
 
 function close(): void {
   emit('update:modelValue', false);
@@ -25,17 +28,31 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown));
 
 watch(
   () => props.modelValue,
-  (isOpen) => document.body.classList.toggle('overflow-hidden', isOpen)
+  async (isOpen) => {
+    document.body.classList.toggle('overflow-hidden', isOpen);
+    if (isOpen) {
+      await nextTick();
+      dialogRef.value?.focus();
+    }
+  }
 );
 </script>
 
 <template>
   <Teleport to="body">
     <div v-if="modelValue" class="modal-backdrop-custom" @click.self="close">
-      <div class="modal-dialog-custom" :class="size ? `modal-${size}` : ''">
+      <div
+        ref="dialogRef"
+        class="modal-dialog-custom"
+        :class="size ? `modal-${size}` : ''"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="titleId"
+        tabindex="-1"
+      >
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ title }}</h5>
+            <h5 :id="titleId" class="modal-title">{{ title }}</h5>
             <button type="button" class="btn-close" aria-label="Close" @click="close"></button>
           </div>
           <div class="modal-body">
@@ -71,6 +88,7 @@ watch(
 .modal-dialog-custom {
   width: 100%;
   max-width: 500px;
+  outline: none;
 }
 
 .modal-dialog-custom.modal-sm {

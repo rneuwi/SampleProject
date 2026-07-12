@@ -103,7 +103,7 @@ onMounted(() => {
 
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
-        <span class="fw-semibold">All Applications</span>
+        <span class="fw-semibold"><i class="bi bi-list-ul me-2"></i>All Applications</span>
         <select class="form-select form-select-sm w-auto" :value="statusFilter ?? ''" @change="onStatusFilterChange">
           <option v-for="option in statusOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
         </select>

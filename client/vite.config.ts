@@ -9,6 +9,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Bootstrap 5.3's own SCSS source still uses Dart Sass APIs (legacy
+        // color functions, @import) that newer Dart Sass deprecates. These
+        // warnings originate from bootstrap/scss/*, not this project's code.
+        silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'if-function'],
+      },
+    },
+  },
   server: {
     host: true,
     port: 5173,

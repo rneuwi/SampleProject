@@ -1,0 +1,32 @@
+// Mortgage Prequal Dashboard — Bootstrap theme overrides.
+//
+// These are consumed by bootstrap/scss/bootstrap (imported after this file
+// in main.scss) via Sass's `!default` mechanism. Because every component in
+// this app uses Bootstrap's semantic classes (btn-primary, text-bg-success,
+// bg-warning-subtle, ...) rather than hardcoded hex colors, changing the
+// palette here re-themes the entire app from a single place.
+
+$primary: #14395e; // deep navy — brand / primary actions
+$secondary: #5c6b7a; // slate gray
+$success: #1e8a5f; // muted green — approved
+$info: #2f7ea8; // steel blue — refer
+$warning: #c98a2c; // muted gold — conditional
+$danger: #b3413a; // muted brick red — declined
+$light: #f5f7fa;
+$dark: #1b2733;
+
+$body-bg: #f4f6f9;
+$body-color: #29323d;
+
+$border-radius: 0.5rem;
+$border-radius-sm: 0.375rem;
+$border-radius-lg: 0.625rem;
+
+$card-border-color: rgba(27, 39, 51, 0.08);
+$box-shadow-sm: 0 1px 2px rgba(16, 24, 32, 0.06);
+
+$navbar-dark-color: rgba(255, 255, 255, 0.75);
+$navbar-dark-hover-color: #fff;
+$navbar-dark-active-color: #fff;
+
+$link-decoration: none;

@@ -71,7 +71,7 @@ watch(applicationId, (id) => store.fetchById(id));
       <div class="row g-4">
         <div class="col-lg-7">
           <div class="card mb-4">
-            <div class="card-header fw-semibold">Loan Details</div>
+            <div class="card-header fw-semibold"><i class="bi bi-house me-2"></i>Loan Details</div>
             <div class="card-body">
               <dl class="row mb-0">
                 <dt class="col-sm-5">Loan Type</dt>
@@ -101,7 +101,7 @@ watch(applicationId, (id) => store.fetchById(id));
 
         <div class="col-lg-5">
           <div class="card mb-4">
-            <div class="card-header fw-semibold">Underwriting Decision</div>
+            <div class="card-header fw-semibold"><i class="bi bi-clipboard-check me-2"></i>Underwriting Decision</div>
             <div class="card-body">
               <StatusBadge :status="current.underwritingStatus" />
               <p class="mt-3 mb-0">{{ current.underwritingNotes }}</p>
@@ -109,7 +109,7 @@ watch(applicationId, (id) => store.fetchById(id));
           </div>
 
           <div class="card">
-            <div class="card-header fw-semibold">Risk Metrics</div>
+            <div class="card-header fw-semibold"><i class="bi bi-graph-up me-2"></i>Risk Metrics</div>
             <div class="card-body d-flex flex-column gap-4">
               <RatioProgress label="Debt-to-Income (DTI)" :value="current.dtiRatio" :good-threshold="36" :warn-threshold="45" />
               <RatioProgress label="Loan-to-Value (LTV)" :value="current.ltvRatio" :good-threshold="80" :warn-threshold="95" />

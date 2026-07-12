@@ -1,0 +1,26 @@
+// Small, deliberate deviations from stock Bootstrap that aren't expressible
+// as variable overrides. Kept minimal on purpose.
+
+.card {
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: var(--bs-box-shadow-sm);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+// Route transition (see App.vue)
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
