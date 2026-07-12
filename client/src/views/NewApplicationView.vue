@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { isAxiosError } from 'axios';
 import FormField from '@/components/common/FormField.vue';
@@ -59,10 +59,15 @@ function clearErrors(): void {
   submitError.value = null;
 }
 
+// Once a submit attempt has surfaced errors, clear them as soon as the user
+// edits anything rather than leaving stale messages next to already-fixed
+// fields until the next submit.
+watch(form, () => clearErrors(), { deep: true });
+
 function validateClientSide(): boolean {
   let valid = true;
   for (const field of REQUIRED_FIELDS) {
-    if (!form[field].trim()) {
+    if (!String(form[field]).trim()) {
       fieldErrors[field] = 'This field is required.';
       valid = false;
     }
@@ -188,7 +193,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.loanAmount"
             id="loanAmount"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="decimal"
             label="Loan Amount ($)"
             required
             min="1"
@@ -198,7 +204,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.propertyValue"
             id="propertyValue"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="decimal"
             label="Property Value ($)"
             required
             min="1"
@@ -208,7 +215,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.annualIncome"
             id="annualIncome"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="decimal"
             label="Annual Income ($)"
             required
             min="1"
@@ -218,7 +226,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.monthlyDebts"
             id="monthlyDebts"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="decimal"
             label="Monthly Debts ($)"
             required
             min="0"
@@ -229,7 +238,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.creditScore"
             id="creditScore"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="numeric"
             label="Credit Score"
             required
             min="300"
@@ -246,7 +256,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.interestRate"
             id="interestRate"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="decimal"
             label="Interest Rate (%)"
             min="0"
             max="25"
@@ -256,7 +267,8 @@ async function onSubmit(): Promise<void> {
             v-model="form.loanTermMonths"
             id="loanTermMonths"
             class="col-md-6"
-            type="number"
+            type="text"
+            inputmode="numeric"
             label="Loan Term (months)"
             min="1"
             max="600"

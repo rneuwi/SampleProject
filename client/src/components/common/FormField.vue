@@ -3,7 +3,13 @@ withDefaults(
   defineProps<{
     id: string;
     label: string;
-    type?: 'text' | 'email' | 'tel' | 'number' | 'select';
+    // Deliberately no 'number' here: Vue's v-model auto-casts <input type="number">
+    // to an actual JS Number (even without the .number modifier), which breaks the
+    // "numeric fields stay strings, the API coerces them" contract this form relies
+    // on. Use type="text" + inputmode="decimal"/"numeric" for numeric-looking fields
+    // instead — same mobile keyboard, no silent type coercion.
+    type?: 'text' | 'email' | 'tel' | 'select';
+    inputmode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email';
     options?: { value: string; label: string }[];
     error?: string;
     hint?: string;
@@ -14,6 +20,7 @@ withDefaults(
   }>(),
   {
     type: 'text',
+    inputmode: undefined,
     options: () => [],
     error: undefined,
     hint: undefined,
@@ -49,6 +56,7 @@ const model = defineModel<string>();
       :id="id"
       v-model="model"
       :type="type"
+      :inputmode="inputmode"
       class="form-control"
       :class="{ 'is-invalid': error }"
       :placeholder="placeholder"

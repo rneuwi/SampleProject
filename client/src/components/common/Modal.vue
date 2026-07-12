@@ -72,6 +72,13 @@ watch(
   but driven entirely by Vue state via Teleport, rather than Bootstrap's own
   JS/Popper modal component — mixing Bootstrap's imperative DOM toggling with
   Vue's reactivity is a common source of subtle bugs.
+
+  One gotcha this caused: Bootstrap 5.3's .modal-content only gets its colors
+  from --bs-modal-bg/-color/-border-* custom properties, and those are only
+  *defined* on Bootstrap's own .modal wrapper class, which we don't use. Left
+  alone, .modal-content renders with a fully transparent background. Fixed by
+  backfilling the same variables here from Bootstrap's globally-available
+  root variables (--bs-body-bg etc.), so it still tracks the active theme.
 -->
 <style scoped>
 .modal-backdrop-custom {
@@ -83,6 +90,13 @@ watch(
   justify-content: center;
   z-index: 1055;
   padding: 1rem;
+  --bs-modal-bg: var(--bs-body-bg);
+  --bs-modal-color: var(--bs-body-color);
+  --bs-modal-border-color: var(--bs-border-color-translucent);
+  --bs-modal-border-width: var(--bs-border-width);
+  --bs-modal-border-radius: var(--bs-border-radius-lg);
+  --bs-modal-header-border-color: var(--bs-border-color);
+  --bs-modal-footer-border-color: var(--bs-border-color);
 }
 
 .modal-dialog-custom {
