@@ -3,7 +3,7 @@
 A full-stack sample application for reviewing mortgage loan applications: entering applicant
 and loan data, and surfacing an automated DTI / LTV / underwriting recommendation.
 
-**Status: backend and frontend implemented.** A styling/refinement pass is next — see Roadmap.
+**Status: feature-complete.** Backend, frontend, and a styling/refinement pass are all done — see Roadmap.
 
 ## Tech stack
 
@@ -134,9 +134,34 @@ All routes are under `/api`.
   controller/service split: the store owns UI-facing state (loading flags, pagination,
   filters), the API module owns HTTP concerns, and neither depends on the other's internals.
 
+## Theming
+
+Bootstrap is compiled from its Sass source (`src/assets/scss/main.scss`) rather than
+importing the precompiled CSS, with variable overrides in `_variables.scss` (a navy/slate
+palette in place of Bootstrap's defaults, softened success/warning/danger/info colors,
+slightly larger border-radius, a tinted body background). Because every component uses
+Bootstrap's semantic classes (`btn-primary`, `text-bg-success`, `bg-warning-subtle`, ...)
+rather than hardcoded hex values, the entire app re-themes from that one file — nothing in
+`components/` or `views/` references a color directly.
+
+Bootstrap 5.3's own SCSS still calls Dart Sass APIs (legacy global color functions,
+`@import`) that newer Dart Sass versions deprecate; `vite.config.ts` silences those specific
+warning categories since they originate from Bootstrap's source, not this project's.
+
+## Accessibility & UX refinements
+
+- `DataTable` sortable headers are real `<button>` elements (not a `<th onclick>`), and rows
+  are keyboard-operable (`tabindex`, `role="button"`, Enter to activate).
+- `Modal` sets `role="dialog"`/`aria-modal`/`aria-labelledby` and moves focus into the dialog
+  when it opens.
+- `FormField` renders a visible required-indicator and `aria-required` when `required` is set,
+  and the New Application form marks every field the backend actually requires.
+- Per-route document titles via a `router.afterEach` hook, a favicon, and a fade transition
+  between routes.
+
 ## Roadmap
 
 1. ~~Scaffolding & Docker configuration~~ ✅
 2. ~~Backend: applicant/loan-application CRUD, DTI/LTV calculators, underwriting rules engine~~ ✅
 3. ~~Frontend: dashboard views, reusable components (DataTable, FormField, Modal, Pagination, Cards), Pinia store~~ ✅
-4. Styling & refinement pass
+4. ~~Styling & refinement pass~~ ✅
