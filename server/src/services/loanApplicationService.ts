@@ -61,6 +61,7 @@ const SORT_COLUMNS: Record<string, string> = {
   creditScore: 'la.credit_score',
   dtiRatio: 'la.dti_ratio',
   ltvRatio: 'la.ltv_ratio',
+  applicant: 'a.last_name, a.first_name',
 };
 
 function mapLoanApplication(row: LoanApplicationRow): LoanApplicationWithApplicant {
@@ -193,6 +194,12 @@ export async function listLoanApplications(
 
   const sortColumn = SORT_COLUMNS[query.sortBy ?? 'createdAt'];
   const sortDir = query.sortDir === 'asc' ? 'ASC' : 'DESC';
+  // Some sort keys (e.g. 'applicant') map to more than one column — apply the
+  // direction to each one, since `ORDER BY a, b DESC` only applies DESC to `b`.
+  const orderByClause = sortColumn
+    .split(',')
+    .map((col) => `${col.trim()} ${sortDir}`)
+    .join(', ');
 
   const [countRows] = await pool.query<RowDataPacket[]>(
     `SELECT COUNT(*) AS total FROM loan_applications la JOIN applicants a ON a.id = la.applicant_id ${whereClause}`,
@@ -201,7 +208,7 @@ export async function listLoanApplications(
   const totalItems = Number(countRows[0].total);
 
   const [rows] = await pool.query<LoanApplicationRow[]>(
-    `${SELECT_WITH_APPLICANT} ${whereClause} ORDER BY ${sortColumn} ${sortDir} LIMIT ? OFFSET ?`,
+    `${SELECT_WITH_APPLICANT} ${whereClause} ORDER BY ${orderByClause} LIMIT ? OFFSET ?`,
     [...values, pageSize, offset]
   );
 

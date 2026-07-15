@@ -47,7 +47,7 @@ export const listLoanApplicationsQuerySchema = paginationQuerySchema.extend({
     .pipe(z.array(underwritingStatusSchema).min(1))
     .optional(),
   search: z.string().trim().max(255).optional(),
-  sortBy: z.enum(['createdAt', 'loanAmount', 'creditScore', 'dtiRatio', 'ltvRatio']).optional(),
+  sortBy: z.enum(['createdAt', 'loanAmount', 'creditScore', 'dtiRatio', 'ltvRatio', 'applicant']).optional(),
   sortDir: z.enum(['asc', 'desc']).optional(),
 });
 

@@ -1,7 +1,7 @@
 export type LoanType = 'conventional' | 'fha' | 'va' | 'usda';
 export type EmploymentStatus = 'employed' | 'self_employed' | 'unemployed' | 'retired';
 export type UnderwritingStatus = 'approved' | 'conditional' | 'refer' | 'declined';
-export type LoanApplicationSortColumn = 'createdAt' | 'loanAmount' | 'creditScore' | 'dtiRatio' | 'ltvRatio';
+export type LoanApplicationSortColumn = 'createdAt' | 'loanAmount' | 'creditScore' | 'dtiRatio' | 'ltvRatio' | 'applicant';
 
 export interface Applicant {
   id: number;

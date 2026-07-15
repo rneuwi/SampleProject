@@ -17,7 +17,7 @@ const store = useLoanApplicationsStore();
 const { items, pagination, isLoading, statusFilter, sortBy, sortDir, summary } = storeToRefs(store);
 
 const columns: DataTableColumn<LoanApplicationWithApplicant>[] = [
-  { key: 'applicant', label: 'Applicant' },
+  { key: 'applicant', label: 'Applicant', sortable: true },
   { key: 'loanType', label: 'Loan Type' },
   { key: 'loanAmount', label: 'Loan Amount', sortable: true, align: 'end' },
   { key: 'creditScore', label: 'Credit Score', sortable: true, align: 'end' },
@@ -142,7 +142,7 @@ onMounted(() => {
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
         <span class="fw-semibold"><i class="bi bi-list-ul me-2"></i>All Applications</span>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="d-flex align-items-center gap-2">
           <div class="input-group input-group-sm" style="max-width: 260px">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
             <input

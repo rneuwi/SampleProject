@@ -48,7 +48,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
   <div ref="root" class="dropdown" @keydown.escape="isOpen = false">
     <button
       type="button"
-      class="form-select form-select-sm text-start"
+      class="form-select form-select-sm text-start w-auto text-nowrap"
       aria-haspopup="true"
       :aria-expanded="isOpen"
       @click="toggleOpen"
