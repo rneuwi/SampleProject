@@ -79,6 +79,10 @@ watch(
   alone, .modal-content renders with a fully transparent background. Fixed by
   backfilling the same variables here from Bootstrap's globally-available
   root variables (--bs-body-bg etc.), so it still tracks the active theme.
+  Same story for spacing: .modal-header/-body/-footer padding is driven by
+  --bs-modal-padding/-header-padding/-footer-gap, also only defined on
+  .modal, so without backfilling them here the header/body/footer render
+  with zero padding and content (e.g. footer buttons) touches the edges.
 -->
 <style scoped>
 .modal-backdrop-custom {
@@ -97,6 +101,9 @@ watch(
   --bs-modal-border-radius: var(--bs-border-radius-lg);
   --bs-modal-header-border-color: var(--bs-border-color);
   --bs-modal-footer-border-color: var(--bs-border-color);
+  --bs-modal-padding: 1rem;
+  --bs-modal-header-padding: 1rem 1rem;
+  --bs-modal-footer-gap: 0.5rem;
 }
 
 .modal-dialog-custom {
