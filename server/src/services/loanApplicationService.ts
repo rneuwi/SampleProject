@@ -184,13 +184,18 @@ export async function listLoanApplications(
     filters.push('la.underwriting_status IN (?)');
     values.push(query.status);
   }
+  if (query.search) {
+    filters.push('(a.first_name LIKE ? OR a.last_name LIKE ? OR a.email LIKE ?)');
+    const like = `%${query.search}%`;
+    values.push(like, like, like);
+  }
   const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
 
   const sortColumn = SORT_COLUMNS[query.sortBy ?? 'createdAt'];
   const sortDir = query.sortDir === 'asc' ? 'ASC' : 'DESC';
 
   const [countRows] = await pool.query<RowDataPacket[]>(
-    `SELECT COUNT(*) AS total FROM loan_applications la ${whereClause}`,
+    `SELECT COUNT(*) AS total FROM loan_applications la JOIN applicants a ON a.id = la.applicant_id ${whereClause}`,
     values
   );
   const totalItems = Number(countRows[0].total);

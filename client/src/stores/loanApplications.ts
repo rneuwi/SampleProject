@@ -16,6 +16,7 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
   const items = ref<LoanApplicationWithApplicant[]>([]);
   const pagination = ref<PaginationMeta>({ ...DEFAULT_PAGINATION });
   const statusFilter = ref<UnderwritingStatus[]>([]);
+  const searchTerm = ref('');
   const sortBy = ref('createdAt');
   const sortDir = ref<'asc' | 'desc'>('desc');
   const isLoading = ref(false);
@@ -34,6 +35,7 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
         page,
         pageSize: pagination.value.pageSize,
         status: statusFilter.value.length > 0 ? statusFilter.value : undefined,
+        search: searchTerm.value.trim() || undefined,
         sortBy: sortBy.value as never,
         sortDir: sortDir.value,
       });
@@ -85,6 +87,10 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
     statusFilter.value = statuses;
   }
 
+  function setSearchTerm(term: string): void {
+    searchTerm.value = term;
+  }
+
   function setSort(column: string): void {
     if (sortBy.value === column) {
       sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
@@ -98,6 +104,7 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
     items,
     pagination,
     statusFilter,
+    searchTerm,
     sortBy,
     sortDir,
     isLoading,
@@ -112,6 +119,7 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
     updateApplication,
     deleteApplication,
     setStatusFilter,
+    setSearchTerm,
     setSort,
   };
 });

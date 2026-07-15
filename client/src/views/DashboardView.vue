@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useLoanApplicationsStore } from '@/stores/loanApplications';
@@ -50,6 +50,21 @@ function applyStatusFilter(statuses: UnderwritingStatus[]): void {
 // when the stat cards call applyStatusFilter above), so a plain (non-deep)
 // watch is enough to refetch page 1 whenever the filter changes.
 watch(statusFilter, () => store.fetchList(1));
+
+const searchInput = ref('');
+let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+watch(searchInput, (value) => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    store.setSearchTerm(value);
+    store.fetchList(1);
+  }, 300);
+});
+
+onBeforeUnmount(() => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+});
 
 function onSort(key: string): void {
   store.setSort(key);
@@ -127,7 +142,19 @@ onMounted(() => {
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
         <span class="fw-semibold"><i class="bi bi-list-ul me-2"></i>All Applications</span>
-        <MultiSelectDropdown v-model="statusFilter" :options="statusOptions" placeholder="All statuses" />
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <div class="input-group input-group-sm" style="max-width: 260px">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input
+              v-model="searchInput"
+              type="search"
+              class="form-control"
+              placeholder="Search name or email…"
+              aria-label="Search applications by name or email"
+            />
+          </div>
+          <MultiSelectDropdown v-model="statusFilter" :options="statusOptions" placeholder="All statuses" />
+        </div>
       </div>
       <DataTable
         :columns="columns"

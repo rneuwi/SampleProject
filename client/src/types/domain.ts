@@ -87,6 +87,7 @@ export interface ListLoanApplicationsParams {
   page?: number;
   pageSize?: number;
   status?: UnderwritingStatus | UnderwritingStatus[];
+  search?: string;
   sortBy?: LoanApplicationSortColumn;
   sortDir?: 'asc' | 'desc';
 }
