@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { isAxiosError } from 'axios';
 import FormField from '@/components/common/FormField.vue';
 import { useLoanApplicationsStore } from '@/stores/loanApplications';
+import { unmaskNumeric } from '@/utils/masks';
 import type { ApiValidationErrorDetail, CreateLoanApplicationPayload, EmploymentStatus, LoanType } from '@/types/domain';
 
 const router = useRouter();
@@ -21,8 +22,8 @@ const form = reactive({
   monthlyDebts: '',
   creditScore: '',
   employmentStatus: 'employed' as EmploymentStatus,
-  interestRate: '',
-  loanTermMonths: '',
+  interestRate: '6.5',
+  loanTermMonths: '360',
 });
 
 const loanTypeOptions = [
@@ -84,10 +85,10 @@ function buildPayload(): CreateLoanApplicationPayload {
       phone: form.phone || undefined,
     },
     loanType: form.loanType,
-    loanAmount: form.loanAmount,
-    propertyValue: form.propertyValue,
-    annualIncome: form.annualIncome,
-    monthlyDebts: form.monthlyDebts,
+    loanAmount: unmaskNumeric(form.loanAmount),
+    propertyValue: unmaskNumeric(form.propertyValue),
+    annualIncome: unmaskNumeric(form.annualIncome),
+    monthlyDebts: unmaskNumeric(form.monthlyDebts),
     creditScore: form.creditScore,
     employmentStatus: form.employmentStatus,
     interestRate: form.interestRate || undefined,
@@ -164,7 +165,9 @@ async function onSubmit(): Promise<void> {
             id="phone"
             class="col-md-6"
             type="tel"
+            mask="phone"
             label="Phone (optional)"
+            placeholder="(555) 123-4567"
             :error="fieldErrors.phone"
           />
         </div>
@@ -195,6 +198,7 @@ async function onSubmit(): Promise<void> {
             class="col-md-6"
             type="text"
             inputmode="decimal"
+            mask="currency"
             label="Loan Amount ($)"
             required
             min="1"
@@ -206,6 +210,7 @@ async function onSubmit(): Promise<void> {
             class="col-md-6"
             type="text"
             inputmode="decimal"
+            mask="currency"
             label="Property Value ($)"
             required
             min="1"
@@ -217,6 +222,7 @@ async function onSubmit(): Promise<void> {
             class="col-md-6"
             type="text"
             inputmode="decimal"
+            mask="currency"
             label="Annual Income ($)"
             required
             min="1"
@@ -228,6 +234,7 @@ async function onSubmit(): Promise<void> {
             class="col-md-6"
             type="text"
             inputmode="decimal"
+            mask="currency"
             label="Monthly Debts ($)"
             required
             min="0"
@@ -258,10 +265,11 @@ async function onSubmit(): Promise<void> {
             class="col-md-6"
             type="text"
             inputmode="decimal"
+            mask="percent"
             label="Interest Rate (%)"
             min="0"
             max="25"
-            hint="Defaults to 6.5% if left blank."
+            hint="Defaults to 6.5%; edit if this application uses a different rate."
           />
           <FormField
             v-model="form.loanTermMonths"
@@ -272,7 +280,7 @@ async function onSubmit(): Promise<void> {
             label="Loan Term (months)"
             min="1"
             max="600"
-            hint="Defaults to 360 months (30 years) if left blank."
+            hint="Defaults to 360 months (30 years); edit if this application uses a different term."
           />
         </div>
       </div>

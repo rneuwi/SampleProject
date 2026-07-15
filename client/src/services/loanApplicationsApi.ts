@@ -11,7 +11,9 @@ import type {
 export async function listLoanApplications(
   params: ListLoanApplicationsParams
 ): Promise<PaginatedResult<LoanApplicationWithApplicant>> {
-  const { data } = await api.get<PaginatedResult<LoanApplicationWithApplicant>>('/loan-applications', { params });
+  const { data } = await api.get<PaginatedResult<LoanApplicationWithApplicant>>('/loan-applications', {
+    params: { ...params, status: Array.isArray(params.status) ? params.status.join(',') : params.status },
+  });
   return data;
 }
 

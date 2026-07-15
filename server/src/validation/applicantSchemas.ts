@@ -5,7 +5,12 @@ export const applicantInputSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
   email: z.string().trim().email('Must be a valid email address').max(255),
-  phone: z.string().trim().max(20).optional(),
+  phone: z
+    .string()
+    .trim()
+    .max(20)
+    .refine((val) => val.replace(/\D/g, '').length === 10, 'Phone number must contain exactly 10 digits')
+    .optional(),
 });
 
 export const listApplicantsQuerySchema = paginationQuerySchema.extend({

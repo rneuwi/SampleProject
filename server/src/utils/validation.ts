@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { ZodError, ZodSchema } from 'zod';
+import { ZodError, ZodSchema, ZodType, ZodTypeDef } from 'zod';
 import { ApiError } from './ApiError';
 
 // Validates req.body against a schema and replaces it with the parsed
@@ -18,7 +18,11 @@ export function validateBody(schema: ZodSchema) {
 
 // Query strings can't be reassigned on Express's Request in a type-safe way,
 // so query validation is a plain helper controllers call directly.
-export function parseQuery<T>(schema: ZodSchema<T>, query: unknown): T {
+// Two generics (rather than ZodSchema<T>) because schemas with a .transform()/.pipe()
+// step (e.g. comma-separated query values normalized into an array) have a parsed
+// Output that differs from their raw Input — collapsing both to one T would infer
+// the wrong side.
+export function parseQuery<Output, Input = Output>(schema: ZodType<Output, ZodTypeDef, Input>, query: unknown): Output {
   const result = schema.safeParse(query);
   if (!result.success) {
     throw toApiError(result.error);

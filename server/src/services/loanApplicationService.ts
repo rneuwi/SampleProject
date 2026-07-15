@@ -180,8 +180,8 @@ export async function listLoanApplications(
 
   const filters: string[] = [];
   const values: unknown[] = [];
-  if (query.status) {
-    filters.push('la.underwriting_status = ?');
+  if (query.status && query.status.length > 0) {
+    filters.push('la.underwriting_status IN (?)');
     values.push(query.status);
   }
   const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
@@ -242,6 +242,14 @@ export async function updateLoanApplication(
 
   const metrics = deriveMetrics(merged);
 
+  // A reviewer overriding the decision manually takes precedence over the
+  // automated recommendation; the financial/ratio fields are always recomputed
+  // regardless, since those are objective figures, not a reviewer's call.
+  const underwritingStatus = input.underwritingStatus ?? metrics.underwritingStatus;
+  const underwritingNotes = input.underwritingStatus
+    ? (input.underwritingNotes ?? existing.underwritingNotes)
+    : metrics.underwritingNotes;
+
   await pool.query(
     `UPDATE loan_applications SET
        loan_type = ?, loan_amount = ?, property_value = ?, annual_income = ?, monthly_debts = ?,
@@ -261,8 +269,8 @@ export async function updateLoanApplication(
       metrics.monthlyHousingPayment,
       metrics.dtiRatio,
       metrics.ltvRatio,
-      metrics.underwritingStatus,
-      metrics.underwritingNotes,
+      underwritingStatus,
+      underwritingNotes,
       id,
     ]
   );

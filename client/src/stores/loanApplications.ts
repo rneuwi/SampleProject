@@ -7,6 +7,7 @@ import type {
   LoanApplicationWithApplicant,
   PaginationMeta,
   UnderwritingStatus,
+  UpdateLoanApplicationPayload,
 } from '@/types/domain';
 
 const DEFAULT_PAGINATION: PaginationMeta = { page: 1, pageSize: 10, totalItems: 0, totalPages: 1 };
@@ -14,7 +15,7 @@ const DEFAULT_PAGINATION: PaginationMeta = { page: 1, pageSize: 10, totalItems: 
 export const useLoanApplicationsStore = defineStore('loanApplications', () => {
   const items = ref<LoanApplicationWithApplicant[]>([]);
   const pagination = ref<PaginationMeta>({ ...DEFAULT_PAGINATION });
-  const statusFilter = ref<UnderwritingStatus | undefined>(undefined);
+  const statusFilter = ref<UnderwritingStatus[]>([]);
   const sortBy = ref('createdAt');
   const sortDir = ref<'asc' | 'desc'>('desc');
   const isLoading = ref(false);
@@ -32,7 +33,7 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
       const result = await loanApplicationsApi.listLoanApplications({
         page,
         pageSize: pagination.value.pageSize,
-        status: statusFilter.value,
+        status: statusFilter.value.length > 0 ? statusFilter.value : undefined,
         sortBy: sortBy.value as never,
         sortDir: sortDir.value,
       });
@@ -66,13 +67,22 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
     return loanApplicationsApi.createLoanApplication(payload);
   }
 
+  async function updateApplication(
+    id: number,
+    payload: UpdateLoanApplicationPayload
+  ): Promise<LoanApplicationWithApplicant> {
+    const updated = await loanApplicationsApi.updateLoanApplication(id, payload);
+    current.value = updated;
+    return updated;
+  }
+
   async function deleteApplication(id: number): Promise<void> {
     await loanApplicationsApi.deleteLoanApplication(id);
     items.value = items.value.filter((item) => item.id !== id);
   }
 
-  function setStatusFilter(status: UnderwritingStatus | undefined): void {
-    statusFilter.value = status;
+  function setStatusFilter(statuses: UnderwritingStatus[]): void {
+    statusFilter.value = statuses;
   }
 
   function setSort(column: string): void {
@@ -99,6 +109,7 @@ export const useLoanApplicationsStore = defineStore('loanApplications', () => {
     fetchSummary,
     fetchById,
     createApplication,
+    updateApplication,
     deleteApplication,
     setStatusFilter,
     setSort,

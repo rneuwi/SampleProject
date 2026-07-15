@@ -30,6 +30,12 @@ const router = createRouter({
       meta: { title: 'Application Detail' },
     },
     {
+      path: '/applications/:id/edit',
+      name: 'application-edit',
+      component: () => import('@/views/EditApplicationView.vue'),
+      meta: { title: 'Edit Application' },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),

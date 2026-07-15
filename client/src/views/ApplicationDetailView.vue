@@ -6,6 +6,7 @@ import { useLoanApplicationsStore } from '@/stores/loanApplications';
 import StatusBadge from '@/components/common/StatusBadge.vue';
 import RatioProgress from '@/components/common/RatioProgress.vue';
 import Modal from '@/components/common/Modal.vue';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const route = useRoute();
 const router = useRouter();
@@ -15,21 +16,6 @@ const { current, isLoadingCurrent, error } = storeToRefs(store);
 const applicationId = computed(() => Number(route.params.id));
 const showDeleteModal = ref(false);
 const isDeleting = ref(false);
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 0,
-});
-const dateFormatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
-
-function formatCurrency(value: number): string {
-  return currencyFormatter.format(value);
-}
-
-function formatDate(value: string): string {
-  return dateFormatter.format(new Date(value));
-}
 
 async function confirmDelete(): Promise<void> {
   if (!current.value) return;
@@ -62,6 +48,9 @@ watch(applicationId, (id) => store.fetchById(id));
         </div>
         <div class="d-flex align-items-center gap-2">
           <StatusBadge :status="current.underwritingStatus" />
+          <RouterLink :to="`/applications/${current.id}/edit`" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil me-1"></i>Edit
+          </RouterLink>
           <button class="btn btn-outline-danger btn-sm" @click="showDeleteModal = true">
             <i class="bi bi-trash me-1"></i>Delete
           </button>
@@ -93,7 +82,7 @@ watch(applicationId, (id) => store.fetchById(id));
                 <dt class="col-sm-5">Est. Monthly Payment</dt>
                 <dd class="col-sm-7">{{ formatCurrency(current.monthlyHousingPayment) }}</dd>
                 <dt class="col-sm-5">Submitted</dt>
-                <dd class="col-sm-7 mb-0">{{ formatDate(current.createdAt) }}</dd>
+                <dd class="col-sm-7 mb-0">{{ formatDate(current.createdAt, 'long') }}</dd>
               </dl>
             </div>
           </div>

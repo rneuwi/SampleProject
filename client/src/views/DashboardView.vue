@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useLoanApplicationsStore } from '@/stores/loanApplications';
 import DataTable from '@/components/common/DataTable.vue';
+import MultiSelectDropdown from '@/components/common/MultiSelectDropdown.vue';
 import Pagination from '@/components/common/Pagination.vue';
 import StatCard from '@/components/common/StatCard.vue';
 import StatusBadge from '@/components/common/StatusBadge.vue';
 import type { DataTableColumn } from '@/types/dataTable';
 import type { LoanApplicationWithApplicant, UnderwritingStatus } from '@/types/domain';
+import { formatCurrency, formatDate, formatPercent } from '@/utils/formatters';
 
 const router = useRouter();
 const store = useLoanApplicationsStore();
@@ -25,8 +27,9 @@ const columns: DataTableColumn<LoanApplicationWithApplicant>[] = [
   { key: 'createdAt', label: 'Submitted', sortable: true },
 ];
 
-const statusOptions: { value: UnderwritingStatus | ''; label: string }[] = [
-  { value: '', label: 'All statuses' },
+const NEEDS_REVIEW_STATUSES: UnderwritingStatus[] = ['conditional', 'refer'];
+
+const statusOptions: { value: UnderwritingStatus; label: string }[] = [
   { value: 'approved', label: 'Approved' },
   { value: 'conditional', label: 'Conditional' },
   { value: 'refer', label: 'Refer' },
@@ -35,30 +38,18 @@ const statusOptions: { value: UnderwritingStatus | ''; label: string }[] = [
 
 const needsReviewCount = computed(() => (summary.value?.byStatus.conditional ?? 0) + (summary.value?.byStatus.refer ?? 0));
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 0,
-});
-const dateFormatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
-
-function formatCurrency(value: unknown): string {
-  return currencyFormatter.format(value as number);
+function statusFilterMatches(statuses: UnderwritingStatus[]): boolean {
+  return statusFilter.value.length === statuses.length && statuses.every((s) => statusFilter.value.includes(s));
 }
 
-function formatPercent(value: unknown): string {
-  return `${(value as number).toFixed(1)}%`;
+function applyStatusFilter(statuses: UnderwritingStatus[]): void {
+  store.setStatusFilter(statuses);
 }
 
-function formatDate(value: unknown): string {
-  return dateFormatter.format(new Date(value as string));
-}
-
-function onStatusFilterChange(event: Event): void {
-  const value = (event.target as HTMLSelectElement).value as UnderwritingStatus | '';
-  store.setStatusFilter(value === '' ? undefined : value);
-  store.fetchList(1);
-}
+// v-model on the multi-select swaps in a new array on every change (including
+// when the stat cards call applyStatusFilter above), so a plain (non-deep)
+// watch is enough to refetch page 1 whenever the filter changes.
+watch(statusFilter, () => store.fetchList(1));
 
 function onSort(key: string): void {
   store.setSort(key);
@@ -88,25 +79,55 @@ onMounted(() => {
 
     <div class="row g-3 mb-4">
       <div class="col-sm-6 col-lg-3">
-        <StatCard label="Total Applications" :value="summary?.totalApplications ?? '—'" icon="bi bi-files" variant="primary" />
+        <StatCard
+          label="Total Applications"
+          :value="summary?.totalApplications ?? '—'"
+          icon="bi bi-files"
+          variant="primary"
+          clickable
+          :active="statusFilter.length === 0"
+          @click="applyStatusFilter([])"
+        />
       </div>
       <div class="col-sm-6 col-lg-3">
-        <StatCard label="Approved" :value="summary?.byStatus.approved ?? '—'" icon="bi bi-check-circle" variant="success" />
+        <StatCard
+          label="Approved"
+          :value="summary?.byStatus.approved ?? '—'"
+          icon="bi bi-check-circle"
+          variant="success"
+          clickable
+          :active="statusFilterMatches(['approved'])"
+          @click="applyStatusFilter(['approved'])"
+        />
       </div>
       <div class="col-sm-6 col-lg-3">
-        <StatCard label="Needs Review" :value="summary ? needsReviewCount : '—'" icon="bi bi-hourglass-split" variant="warning" />
+        <StatCard
+          label="Needs Review"
+          :value="summary ? needsReviewCount : '—'"
+          icon="bi bi-hourglass-split"
+          variant="warning"
+          clickable
+          :active="statusFilterMatches(NEEDS_REVIEW_STATUSES)"
+          @click="applyStatusFilter(NEEDS_REVIEW_STATUSES)"
+        />
       </div>
       <div class="col-sm-6 col-lg-3">
-        <StatCard label="Declined" :value="summary?.byStatus.declined ?? '—'" icon="bi bi-x-circle" variant="danger" />
+        <StatCard
+          label="Declined"
+          :value="summary?.byStatus.declined ?? '—'"
+          icon="bi bi-x-circle"
+          variant="danger"
+          clickable
+          :active="statusFilterMatches(['declined'])"
+          @click="applyStatusFilter(['declined'])"
+        />
       </div>
     </div>
 
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
         <span class="fw-semibold"><i class="bi bi-list-ul me-2"></i>All Applications</span>
-        <select class="form-select form-select-sm w-auto" :value="statusFilter ?? ''" @change="onStatusFilterChange">
-          <option v-for="option in statusOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-        </select>
+        <MultiSelectDropdown v-model="statusFilter" :options="statusOptions" placeholder="All statuses" />
       </div>
       <DataTable
         :columns="columns"

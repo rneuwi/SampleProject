@@ -76,12 +76,17 @@ export interface CreateLoanApplicationPayload {
   loanTermMonths?: string | number;
 }
 
-export type UpdateLoanApplicationPayload = Partial<Omit<CreateLoanApplicationPayload, 'applicant'>>;
+export type UpdateLoanApplicationPayload = Partial<Omit<CreateLoanApplicationPayload, 'applicant'>> & {
+  // Set to manually override the automated recommendation (e.g. a reviewer's decision).
+  // Omit both to let the server keep recomputing the decision from the financial fields.
+  underwritingStatus?: UnderwritingStatus;
+  underwritingNotes?: string;
+};
 
 export interface ListLoanApplicationsParams {
   page?: number;
   pageSize?: number;
-  status?: UnderwritingStatus;
+  status?: UnderwritingStatus | UnderwritingStatus[];
   sortBy?: LoanApplicationSortColumn;
   sortDir?: 'asc' | 'desc';
 }

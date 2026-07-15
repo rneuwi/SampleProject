@@ -22,10 +22,30 @@ export const createLoanApplicationSchema = loanFieldsSchema.extend({
   applicant: applicantInputSchema,
 });
 
-export const updateLoanApplicationSchema = loanFieldsSchema.partial();
+export const updateLoanApplicationSchema = loanFieldsSchema.partial().extend({
+  // Lets a reviewer manually override the automated recommendation. When omitted,
+  // the service keeps recomputing the decision from the (possibly-edited) financial
+  // fields, same as before this pair existed.
+  underwritingStatus: underwritingStatusSchema.optional(),
+  underwritingNotes: z.string().trim().max(2000).optional(),
+});
 
 export const listLoanApplicationsQuerySchema = paginationQuerySchema.extend({
-  status: underwritingStatusSchema.optional(),
+  // Accepts a single status ("refer"), a comma-separated list ("conditional,refer"),
+  // or repeated query keys (Express parses those into an array) — all normalized to
+  // an array so the service can always filter with a single `IN (?)` clause.
+  status: z
+    .union([z.string(), z.array(z.string())])
+    .transform((val) =>
+      (Array.isArray(val) ? val : [val]).flatMap((v) =>
+        v
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      )
+    )
+    .pipe(z.array(underwritingStatusSchema).min(1))
+    .optional(),
   sortBy: z.enum(['createdAt', 'loanAmount', 'creditScore', 'dtiRatio', 'ltvRatio']).optional(),
   sortDir: z.enum(['asc', 'desc']).optional(),
 });

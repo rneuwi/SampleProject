@@ -1,5 +1,7 @@
 <script setup lang="ts">
-withDefaults(
+import { maskCurrency, maskPercent, maskPhone } from '@/utils/masks';
+
+const props = withDefaults(
   defineProps<{
     id: string;
     label: string;
@@ -10,6 +12,7 @@ withDefaults(
     // instead — same mobile keyboard, no silent type coercion.
     type?: 'text' | 'email' | 'tel' | 'select';
     inputmode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email';
+    mask?: 'phone' | 'currency' | 'percent';
     options?: { value: string; label: string }[];
     error?: string;
     hint?: string;
@@ -21,6 +24,7 @@ withDefaults(
   {
     type: 'text',
     inputmode: undefined,
+    mask: undefined,
     options: () => [],
     error: undefined,
     hint: undefined,
@@ -32,6 +36,13 @@ withDefaults(
 );
 
 const model = defineModel<string>();
+
+const maskFns = { phone: maskPhone, currency: maskCurrency, percent: maskPercent } as const;
+
+function onInput(event: Event): void {
+  const raw = (event.target as HTMLInputElement).value;
+  model.value = props.mask ? maskFns[props.mask](raw) : raw;
+}
 </script>
 
 <template>
@@ -54,7 +65,8 @@ const model = defineModel<string>();
     <input
       v-else
       :id="id"
-      v-model="model"
+      :value="model"
+      @input="onInput"
       :type="type"
       :inputmode="inputmode"
       class="form-control"
