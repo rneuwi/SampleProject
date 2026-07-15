@@ -3,7 +3,7 @@
 A full-stack sample application for reviewing mortgage loan applications: entering applicant
 and loan data, and surfacing an automated DTI / LTV / underwriting recommendation.
 
-**Status: feature-complete.** Backend, frontend, and a styling/refinement pass are all done — see Roadmap.
+**Status: feature-complete.** Backend, frontend, and a styling/refinement pass are all done.
 
 ## Tech stack
 
@@ -106,19 +106,21 @@ All routes are under `/api`.
 |---|---|---|
 | GET | `/applicants` | Paginated, `?search=` by name/email |
 | GET | `/applicants/:id` | Includes the applicant's loan applications |
-| GET | `/loan-applications` | Paginated; `?status=`, `?sortBy=`, `?sortDir=` |
+| GET | `/loan-applications` | Paginated; `?status=` (single, comma-separated, or repeated), `?search=` by applicant name/email, `?sortBy=`, `?sortDir=` |
 | GET | `/loan-applications/summary` | Portfolio counts by status + average DTI/LTV, for dashboard stat cards |
 | GET | `/loan-applications/:id` | Full detail, joined with applicant |
 | POST | `/loan-applications` | Creates applicant (find-or-create by email) + loan application in one transaction; computes DTI/LTV/underwriting |
-| PATCH | `/loan-applications/:id` | Recomputes DTI/LTV/underwriting from the merged fields |
+| PATCH | `/loan-applications/:id` | Recomputes DTI/LTV/underwriting from the merged fields, unless `underwritingStatus` is passed explicitly (reviewer override) |
 | DELETE | `/loan-applications/:id` | |
 
 ## Frontend architecture notes
 
 - **Reusable components live in `components/common/`**: `DataTable` (generic over row type,
   scoped-slot cell overrides, sortable headers), `Pagination`, `Modal`, `FormField`,
-  `StatusBadge`, `StatCard`, `RatioProgress`. Each is used more than once or is generic
-  enough that it earns its place as a standalone component rather than inline markup.
+  `StatusBadge`, `StatCard`, `RatioProgress`, `MultiSelectDropdown` (checkbox-menu multi-select,
+  built on Bootstrap's dropdown CSS but not its JS — same reasoning as `Modal` below). Each is
+  used more than once or is generic enough that it earns its place as a standalone component
+  rather than inline markup.
 - **`Modal` is built on Bootstrap's CSS classes but not its JS.** Bootstrap's modal component
   manages its own DOM state (via Popper + data attributes), which fights Vue's reactivity
   model when you need the modal's open/closed state to originate from application state
@@ -158,10 +160,3 @@ warning categories since they originate from Bootstrap's source, not this projec
   and the New Application form marks every field the backend actually requires.
 - Per-route document titles via a `router.afterEach` hook, a favicon, and a fade transition
   between routes.
-
-## Roadmap
-
-1. ~~Scaffolding & Docker configuration~~ ✅
-2. ~~Backend: applicant/loan-application CRUD, DTI/LTV calculators, underwriting rules engine~~ ✅
-3. ~~Frontend: dashboard views, reusable components (DataTable, FormField, Modal, Pagination, Cards), Pinia store~~ ✅
-4. ~~Styling & refinement pass~~ ✅
